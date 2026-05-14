@@ -1,0 +1,874 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: FightTrack Pro API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: Auth
+    description: Browser and mobile authentication endpoints.
+  - name: profile
+    description: User profile operations
+  - name: workouts
+    description: Workout CRUD operations
+  - name: progress
+    description: Progress and statistics
+  - name: meals
+    description: Meal logging and nutrition
+  - name: recommendations
+    description: Smart workout recommendations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserEnvelope'
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the OIDC authorization endpoint.
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: iss
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uri
+      responses:
+        '302':
+          description: Redirect to returnTo on success.
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '302':
+          description: Redirect to the OIDC provider logout URL.
+  /mobile-auth/token-exchange:
+    post:
+      tags: [Auth]
+      operationId: exchangeMobileAuthorizationCode
+      summary: Exchange a mobile OIDC code for a session token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileTokenExchangeRequest'
+      responses:
+        '200':
+          description: Session created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileTokenExchangeSuccess'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /mobile-auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logoutMobileSession
+      summary: Delete a mobile session token
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Logout processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccess'
+  /profile:
+    get:
+      tags: [profile]
+      operationId: getProfile
+      summary: Get the current user's fighter profile
+      responses:
+        '200':
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [profile]
+      operationId: updateProfile
+      summary: Update the current user's fighter profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileInput'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /workouts:
+    get:
+      tags: [workouts]
+      operationId: listWorkouts
+      summary: List the current user's workouts
+      responses:
+        '200':
+          description: List of workouts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workout'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      tags: [workouts]
+      operationId: createWorkout
+      summary: Create a new workout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkoutInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /workouts/{id}:
+    put:
+      tags: [workouts]
+      operationId: updateWorkout
+      summary: Update a workout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkoutInput'
+      responses:
+        '200':
+          description: Updated workout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      tags: [workouts]
+      operationId: deleteWorkout
+      summary: Delete a workout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /weights:
+    get:
+      tags: [progress]
+      operationId: listWeights
+      summary: List the current user's weight entries
+      responses:
+        '200':
+          description: List of weights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeightEntry'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      tags: [progress]
+      operationId: createWeight
+      summary: Log a new weight measurement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWeightInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeightEntry'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /meals:
+    get:
+      tags: [meals]
+      operationId: listMeals
+      summary: List meals (optionally filtered by date)
+      parameters:
+        - name: date
+          in: query
+          required: false
+          description: ISO date string (YYYY-MM-DD) — filters to meals logged on this day
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of meals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Meal'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      tags: [meals]
+      operationId: createMeal
+      summary: Log a new meal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMealInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Meal'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /meals/{id}:
+    delete:
+      tags: [meals]
+      operationId: deleteMeal
+      summary: Delete a meal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /recommendations:
+    get:
+      tags: [recommendations]
+      operationId: getRecommendations
+      summary: Get smart workout and nutrition recommendations
+      responses:
+        '200':
+          description: Recommendation data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recommendation'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /progress/dashboard:
+    get:
+      tags: [progress]
+      operationId: getDashboardStats
+      summary: Get aggregate stats for the dashboard
+      responses:
+        '200':
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /progress/weekly:
+    get:
+      tags: [progress]
+      operationId: getWeeklyWorkouts
+      summary: Get workouts grouped by week for the past 12 weeks
+      responses:
+        '200':
+          description: Weekly workout counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeeklyWorkoutPoint'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /progress/type-breakdown:
+    get:
+      tags: [progress]
+      operationId: getWorkoutTypeBreakdown
+      summary: Get total minutes per workout type
+      responses:
+        '200':
+          description: Workout type breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkoutTypeBreakdown'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: Opaque session token — `Bearer <sid>`.
+      schema:
+        type: string
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema:
+        type: string
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, 'null']
+          format: email
+        firstName:
+          type: [string, 'null']
+        lastName:
+          type: [string, 'null']
+        profileImageUrl:
+          type: [string, 'null']
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: '#/components/schemas/AuthUser'
+            - type: 'null'
+    MobileTokenExchangeRequest:
+      type: object
+      required: [code, code_verifier, redirect_uri, state]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        code_verifier:
+          type: string
+          minLength: 1
+        redirect_uri:
+          type: string
+          minLength: 1
+          format: uri
+        state:
+          type: string
+          minLength: 1
+        nonce:
+          type: string
+          minLength: 1
+    MobileTokenExchangeSuccess:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    LogoutSuccess:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          const: true
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+    Profile:
+      type: object
+      required: [id, displayName, weightKg, weightCategory, discipline, targetWeightKg, cutDeadline, dailyCalorieLimit]
+      properties:
+        id:
+          type: string
+        displayName:
+          type: [string, 'null']
+        weightKg:
+          type: [number, 'null']
+        weightCategory:
+          type: [string, 'null']
+        discipline:
+          type: [string, 'null']
+        targetWeightKg:
+          type: [number, 'null']
+        cutDeadline:
+          type: [string, 'null']
+          format: date-time
+        dailyCalorieLimit:
+          type: [integer, 'null']
+    UpdateProfileInput:
+      type: object
+      properties:
+        displayName:
+          type: [string, 'null']
+        weightKg:
+          type: [number, 'null']
+        weightCategory:
+          type: [string, 'null']
+        discipline:
+          type: [string, 'null']
+        targetWeightKg:
+          type: [number, 'null']
+        cutDeadline:
+          type: [string, 'null']
+          format: date-time
+        dailyCalorieLimit:
+          type: [integer, 'null']
+    Workout:
+      type: object
+      required: [id, date, type, durationMinutes, notes, intensity, caloriesBurned, createdAt]
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [boxing, cardio, sparring, strength, kickboxing, mma, conditioning]
+        durationMinutes:
+          type: integer
+          minimum: 1
+        notes:
+          type: [string, 'null']
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+        caloriesBurned:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+    CreateWorkoutInput:
+      type: object
+      required: [date, type, durationMinutes, intensity]
+      properties:
+        date:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum: [boxing, cardio, sparring, strength, kickboxing, mma, conditioning]
+        durationMinutes:
+          type: integer
+          minimum: 1
+        notes:
+          type: [string, 'null']
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+    WeightEntry:
+      type: object
+      required: [id, date, weightKg, createdAt]
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        weightKg:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+    CreateWeightInput:
+      type: object
+      required: [date, weightKg]
+      properties:
+        date:
+          type: string
+          format: date-time
+        weightKg:
+          type: number
+          minimum: 20
+          maximum: 250
+    DashboardStats:
+      type: object
+      required:
+        - totalWorkouts
+        - workoutsThisWeek
+        - workoutsLastWeek
+        - totalMinutes
+        - minutesThisWeek
+        - currentWeightKg
+        - startingWeightKg
+        - weightCategory
+        - currentStreak
+        - recentWorkouts
+        - weightCut
+        - calories
+      properties:
+        totalWorkouts:
+          type: integer
+        workoutsThisWeek:
+          type: integer
+        workoutsLastWeek:
+          type: integer
+        totalMinutes:
+          type: integer
+        minutesThisWeek:
+          type: integer
+        currentWeightKg:
+          type: [number, 'null']
+        startingWeightKg:
+          type: [number, 'null']
+        weightCategory:
+          type: [string, 'null']
+        currentStreak:
+          type: integer
+        recentWorkouts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workout'
+        weightCut:
+          $ref: '#/components/schemas/WeightCutSummary'
+        calories:
+          $ref: '#/components/schemas/CaloriesSummary'
+    WeightCutSummary:
+      type: object
+      required: [hasTarget, currentWeightKg, targetWeightKg, weightDifferenceKg, totalCaloriesToBurn, percentComplete, deadline, daysRemaining]
+      properties:
+        hasTarget:
+          type: boolean
+        currentWeightKg:
+          type: [number, 'null']
+        targetWeightKg:
+          type: [number, 'null']
+        weightDifferenceKg:
+          type: [number, 'null']
+          description: positive means weight to lose; negative means weight to gain
+        totalCaloriesToBurn:
+          type: [number, 'null']
+        percentComplete:
+          type: [number, 'null']
+          description: 0-100 progress from starting weight to target
+        deadline:
+          type: [string, 'null']
+          format: date-time
+        daysRemaining:
+          type: [integer, 'null']
+    CaloriesSummary:
+      type: object
+      required: [consumedToday, burnedToday, netToday, dailyLimit, remainingToday]
+      properties:
+        consumedToday:
+          type: integer
+        burnedToday:
+          type: integer
+        netToday:
+          type: integer
+        dailyLimit:
+          type: [integer, 'null']
+        remainingToday:
+          type: [integer, 'null']
+    Meal:
+      type: object
+      required: [id, date, name, calories, createdAt]
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        name:
+          type: string
+        calories:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+    CreateMealInput:
+      type: object
+      required: [date, name, calories]
+      properties:
+        date:
+          type: string
+          format: date-time
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        calories:
+          type: integer
+          minimum: 0
+          maximum: 10000
+    Recommendation:
+      type: object
+      required: [message, suggestions, status, dailyDeficitTarget, deficitToday]
+      properties:
+        message:
+          type: string
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecommendationSuggestion'
+        status:
+          type: string
+          enum: [on_track, behind, no_target, ahead]
+        dailyDeficitTarget:
+          type: [integer, 'null']
+          description: kcal deficit needed per day to hit deadline
+        deficitToday:
+          type: integer
+          description: net deficit so far today (burned - consumed adjustment)
+    RecommendationSuggestion:
+      type: object
+      required: [activity, minutes, calories]
+      properties:
+        activity:
+          type: string
+        minutes:
+          type: integer
+        calories:
+          type: integer
+    WeeklyWorkoutPoint:
+      type: object
+      required: [weekStart, count, totalMinutes]
+      properties:
+        weekStart:
+          type: string
+          format: date-time
+        count:
+          type: integer
+        totalMinutes:
+          type: integer
+    WorkoutTypeBreakdown:
+      type: object
+      required: [type, count, totalMinutes]
+      properties:
+        type:
+          type: string
+        count:
+          type: integer
+        totalMinutes:
+          type: integer
