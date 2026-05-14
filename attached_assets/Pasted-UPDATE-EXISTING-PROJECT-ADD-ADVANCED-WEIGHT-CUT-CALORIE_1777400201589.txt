@@ -1,0 +1,165 @@
+UPDATE EXISTING PROJECT – ADD ADVANCED WEIGHT CUT, CALORIE, AND RECOMMENDATION FEATURES
+
+The current project structure, UI, and basic functionality are already implemented. DO NOT rebuild the project.
+
+Your task is to EXTEND and IMPROVE the existing system by adding the following missing features and logic.
+
+---
+
+1. WEIGHT CUT SYSTEM IMPROVEMENT
+
+Currently basic weight tracking exists. Improve it:
+
+* Add fields in user profile:
+
+  * currentWeight (editable)
+  * targetWeight
+  * optional deadline (date)
+
+* Implement logic:
+
+  * weightDifference = currentWeight - targetWeight
+  * totalCaloriesToBurn = weightDifference * 7700
+
+* Display on Dashboard:
+
+  * remaining kg to lose
+  * total calories needed to burn
+  * progress bar toward target weight
+
+---
+
+2. DAILY CALORIE TRACKING (FIX + IMPROVE)
+
+Ensure system correctly calculates daily totals:
+
+* Sum all meals for today:
+  totalCaloriesConsumed
+
+* Sum all workouts for today:
+  totalCaloriesBurned
+
+* Add:
+  netCalories = consumed - burned
+
+* Display on Dashboard:
+
+  * calories consumed
+  * calories burned
+  * remaining calories (based on daily limit)
+
+---
+
+3. IMPROVE WORKOUT CALORIE CALCULATION
+
+If not implemented, add automatic calculation:
+
+* Running → 10 kcal/min
+* Jump rope → 12 kcal/min
+* Shadow boxing → 8 kcal/min
+* Cardio → 9 kcal/min
+
+Backend must:
+
+* Automatically calculate caloriesBurned when workout is created
+* Store value in database
+
+---
+
+4. SMART RECOMMENDATION SYSTEM (MAIN FEATURE)
+
+Create a new endpoint:
+GET /api/recommendations
+
+Logic:
+
+For current day:
+
+* Calculate:
+
+  * caloriesConsumed
+  * caloriesBurned
+  * netCalories
+  * remainingWeight
+
+* Determine daily target deficit:
+  dailyDeficit = totalCaloriesToBurn / remainingDays (if deadline exists)
+
+* Generate response:
+
+IF user is above target:
+
+* "You need to burn X more kcal today"
+
+Suggest workouts:
+
+* Convert kcal → minutes:
+
+  * runningMinutes = X / 10
+  * jumpRopeMinutes = X / 12
+
+Return:
+{
+message: "...",
+suggestions: [
+"Run for 20 minutes",
+"Jump rope for 15 minutes"
+]
+}
+
+---
+
+5. MEAL SYSTEM IMPROVEMENT
+
+Ensure:
+
+* Meals are stored per day
+* Add ability to:
+
+  * delete meals
+* Display:
+
+  * today's meals list
+  * total calories
+
+---
+
+6. DASHBOARD UPDATE (IMPORTANT)
+
+Update UI to include:
+
+* Weight progress section
+* Calories section:
+
+  * consumed / burned / remaining
+* Recommendation block (highlighted card)
+
+This block must dynamically update based on backend data.
+
+---
+
+7. BACKEND IMPROVEMENTS
+
+* Ensure all routes are protected with JWT
+* Validate inputs (no empty values)
+* Optimize queries by filtering by userId and date
+
+---
+
+8. FRONTEND INTEGRATION
+
+* Connect new endpoint /api/recommendations
+* Display recommendations clearly on Dashboard
+* Update charts to reflect:
+
+  * weight progress
+  * calorie trends
+
+---
+
+FINAL REQUIREMENT:
+
+Do NOT change the existing UI design.
+Only extend functionality and integrate new logic cleanly into the current system.
+
+Ensure everything works correctly without breaking existing features.

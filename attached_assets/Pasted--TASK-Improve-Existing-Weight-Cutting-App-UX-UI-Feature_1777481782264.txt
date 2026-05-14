@@ -1,0 +1,152 @@
+**TASK: Improve Existing Weight-Cutting App (UX/UI + Features Enhancement)**
+
+This is NOT a new project. The app is already built, but it needs serious improvement in functionality and user experience. Focus on refining, upgrading, and making everything smooth and professional.
+
+---
+
+### 1. Workout System (Improve Existing Logic)
+
+Current issue: it only shows “do X minutes”. This is too basic.
+
+Upgrade it into a **guided workout system**:
+
+* Add a “Start Workout” button
+* Open a workout screen with:
+
+  * Exercise name
+  * Visual (simple animation or image of a person doing the exercise)
+  * Countdown timer
+
+Workout flow:
+
+* Exercise → Rest → Next exercise (automatic flow)
+* No need for user to manually switch
+
+Add:
+
+* Progress bar (shows workout completion)
+* Sound or vibration when switching phases
+* Pause / Resume / Stop buttons
+
+---
+
+### 2. Nutrition & Calories (Enhance Feature)
+
+Improve the food tracking system:
+
+* User can input foods (e.g., egg, chicken, rice)
+* App should:
+
+  * recognize the food
+  * calculate calories
+  * add to daily total
+
+Add:
+
+* Daily calorie counter
+* Simple food database (basic foods is enough)
+* Meal history
+
+Important:
+
+* Show **daily calorie goal**
+* Show comparison:
+
+  * consumed vs goal
+
+---
+
+### 3. Weight & Goal Tracking
+
+Add or improve:
+
+* Input current weight
+* Set target weight
+* Show:
+
+  * remaining weight to lose
+  * progress (percentage or simple chart)
+
+---
+
+### 4. Cardio / Weight-Cutting Assistant
+
+Add logic-based suggestions:
+
+* User inputs how many kg to lose
+* App suggests:
+
+  * cardio duration
+  * recommended exercises
+
+Example:
+“To lose 2 kg: do 40 minutes cardio + interval training”
+
+---
+
+### 5. UI/UX Improvements (Very Important)
+
+Focus on **clean, modern, and consistent design**:
+
+* Fix alignment (everything should be straight and balanced)
+* Improve spacing and layout
+* Make buttons clear and easy to press
+* Use consistent font sizes
+* Add icons for main sections (Workout, Nutrition, Profile)
+
+Add:
+
+* Smooth transitions between screens
+* Simple and clean interface (no clutter)
+
+Do NOT add color customization — just improve structure and visual quality.
+
+---
+
+### 6. Settings Section
+
+Add a “Settings” page with:
+
+* Language selection (English / Russian)
+* Sound on/off
+* Vibration on/off
+* Change weight goal
+* Reset data
+
+---
+
+### 7. Extra Features (to make the app stronger)
+
+Add at least some of these:
+
+* Notifications:
+
+  * “Time to train”
+  * “Don’t forget to log your meals”
+* Weekly statistics:
+
+  * workouts
+  * calories
+* Streak system:
+
+  * how many days user trained in a row
+* Water tracker
+* Simple sleep tracker (optional check-in)
+* Achievements:
+
+  * “5 workouts completed”
+  * “Lost 1 kg”
+
+---
+
+### 8. General Requirements
+
+* Improve existing code, don’t rebuild from scratch
+* Keep everything simple and user-friendly
+* Avoid unnecessary complexity
+* Ensure smooth performance (no lag)
+
+---
+
+**Goal:**
+Turn the current project into a polished, realistic fitness app focused on weight cutting, training, and nutrition.

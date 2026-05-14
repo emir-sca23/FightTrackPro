@@ -1,0 +1,175 @@
+CRITICAL UPDATE – YOU MUST MODIFY THE EXISTING CODEBASE (DO NOT IGNORE)
+
+The project is already generated, but key functionality is missing or incomplete.
+
+You MUST implement the following EXACT changes. This is NOT optional.
+
+---
+
+1. ADD NEW DATABASE FIELDS (REQUIRED)
+
+Update User model:
+ADD fields:
+
+* targetWeight: Number
+* deadline: Date (optional)
+
+Ensure they are saved and returned in API.
+
+---
+
+2. FIX WORKOUT CALORIES (REQUIRED)
+
+In backend (workout controller):
+
+WHEN creating a workout:
+You MUST automatically calculate caloriesBurned based on type:
+
+IF type === "running" → caloriesBurned = duration * 10
+IF type === "jump rope" → caloriesBurned = duration * 12
+IF type === "shadow boxing" → caloriesBurned = duration * 8
+IF type === "cardio" → caloriesBurned = duration * 9
+
+SAVE caloriesBurned in database.
+
+---
+
+3. CREATE DAILY CALCULATION FUNCTION (REQUIRED)
+
+In backend, create a function:
+
+calculateDailyStats(userId)
+
+It MUST:
+
+* Get today's meals
+* Get today's workouts
+* Calculate:
+  totalCaloriesConsumed
+  totalCaloriesBurned
+  netCalories = consumed - burned
+
+RETURN these values.
+
+---
+
+4. CREATE /api/recommendations (MANDATORY)
+
+You MUST create this endpoint.
+
+Logic MUST:
+
+Step 1:
+Get user:
+
+* currentWeight
+* targetWeight
+* deadline
+
+Step 2:
+Compute:
+weightDifference = currentWeight - targetWeight
+totalCaloriesToBurn = weightDifference * 7700
+
+Step 3:
+If deadline exists:
+remainingDays = days until deadline
+dailyDeficit = totalCaloriesToBurn / remainingDays
+Else:
+dailyDeficit = 500 (default)
+
+Step 4:
+Get today's stats:
+
+* caloriesConsumed
+* caloriesBurned
+
+Step 5:
+remainingCaloriesToBurn = dailyDeficit - (caloriesBurned - caloriesConsumed)
+
+IF remainingCaloriesToBurn <= 0:
+RETURN:
+"You are on track today. Good job."
+
+ELSE:
+Generate suggestions:
+
+runningMinutes = remainingCaloriesToBurn / 10
+jumpRopeMinutes = remainingCaloriesToBurn / 12
+
+RETURN JSON:
+{
+"message": "You need to burn X kcal more today",
+"suggestions": [
+"Run for Y minutes",
+"Jump rope for Z minutes"
+]
+}
+
+---
+
+5. UPDATE DASHBOARD (FRONTEND – REQUIRED)
+
+You MUST modify Dashboard page:
+
+ADD new section:
+
+1. Calories Block:
+
+* Calories Consumed
+* Calories Burned
+* Net Calories
+
+2. Weight Cut Block:
+
+* Current Weight
+* Target Weight
+* Remaining kg
+
+3. Recommendation Block (IMPORTANT):
+
+* Call /api/recommendations
+* Display:
+  message
+  list of suggestions
+
+---
+
+6. FIX MEAL SYSTEM (REQUIRED)
+
+Ensure:
+
+* Meals are filtered by current date
+* Add DELETE meal functionality
+* Show total calories per day
+
+---
+
+7. CONNECT EVERYTHING (CRITICAL)
+
+Frontend MUST:
+
+* Call:
+  /api/meals
+  /api/workouts
+  /api/recommendations
+
+* Update UI dynamically after adding:
+  meal or workout
+
+---
+
+8. FINAL CHECK (MANDATORY)
+
+After changes:
+
+* All calculations must work
+* Recommendations must change dynamically
+* No hardcoded values
+* No UI breaking
+
+---
+
+IF YOU DO NOT MODIFY THE CODE, THE TASK IS NOT COMPLETE.
+
+You must return updated backend + frontend code.

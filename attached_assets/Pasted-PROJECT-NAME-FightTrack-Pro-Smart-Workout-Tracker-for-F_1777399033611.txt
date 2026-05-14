@@ -1,0 +1,276 @@
+PROJECT NAME: FightTrack Pro – Smart Workout Tracker for Fighters
+
+GOAL:
+Build a complete, production-ready full-stack web application for fighters (kickboxing, MMA, boxing) to track workouts, monitor weight, and analyze progress with a modern, visually impressive UI.
+
+---
+
+1. TECH STACK (STRICT REQUIREMENTS)
+
+Frontend:
+
+* React (with Vite)
+* Tailwind CSS
+* Axios
+* Recharts (for charts)
+
+Backend:
+
+* Node.js
+* Express.js
+* JWT Authentication
+* bcrypt for password hashing
+
+Database:
+
+* MongoDB (MongoDB Atlas)
+* Mongoose ODM
+
+Deployment:
+
+* Frontend: Vercel
+* Backend: Render
+* Database: MongoDB Atlas
+
+---
+
+2. FRONTEND REQUIREMENTS
+
+Pages:
+
+* Landing Page (modern, visually appealing)
+* Register Page
+* Login Page
+* Dashboard
+* Add Workout Page
+* Progress Page
+
+Features:
+
+Authentication:
+
+* Register and Login forms
+* Store JWT in localStorage
+* Auto redirect after login
+
+Dashboard:
+
+* Display:
+
+  * Total workouts
+  * Weekly workouts
+  * Current weight
+  * Weight category
+* Show recent workouts list
+* Use icons and styled cards
+
+Add Workout:
+
+* Form fields:
+
+  * Date
+  * Workout Type (dropdown: boxing, cardio, sparring, strength)
+  * Duration (minutes)
+  * Notes
+* Validation required
+
+Progress Page:
+
+* Line chart: workouts per week
+* Line chart: weight progress
+* Smooth animations
+
+Navigation:
+
+* Sidebar or top navbar
+* Icons for each page
+* Logout button
+
+State Management:
+
+* Use React Context API (no Redux)
+
+API Integration:
+
+* Use Axios
+* Centralized API service file
+
+---
+
+3. BACKEND REQUIREMENTS
+
+Architecture:
+
+* MVC structure (Models, Controllers, Routes, Middleware)
+
+Features:
+
+* REST API
+* JWT Authentication
+* Protected routes
+
+AUTH ROUTES:
+
+* POST /api/auth/register
+* POST /api/auth/login
+
+USER ROUTES:
+
+* GET /api/user/profile
+
+WORKOUT ROUTES:
+
+* GET /api/workouts
+* POST /api/workouts
+* PUT /api/workouts/:id
+* DELETE /api/workouts/:id
+
+PROGRESS ROUTE:
+
+* GET /api/progress
+
+Logic:
+
+* Filter workouts by logged-in user
+* Return statistics (total workouts, weekly count, weight history)
+
+Security:
+
+* Hash passwords using bcrypt
+* JWT middleware for protected routes
+* Enable CORS
+* Validate input data
+
+---
+
+4. DATABASE DESIGN (MONGODB)
+
+Users Collection:
+
+* _id
+* name (String)
+* email (String, unique)
+* password (hashed)
+* weight (Number)
+* weightCategory (String, e.g., "54kg")
+* createdAt (Date)
+
+Workouts Collection:
+
+* _id
+* userId (ObjectId, reference to Users)
+* date (Date)
+* type (String)
+* duration (Number)
+* notes (String)
+
+---
+
+5. SYSTEM DESIGN
+
+* React frontend communicates with Express backend via REST API
+* Backend connects to MongoDB Atlas
+* JWT used for authentication
+* Axios used for API calls
+
+---
+
+6. UI/UX DESIGN (VERY IMPORTANT)
+
+Design must be modern, unique, and visually impressive (NOT basic).
+
+Style:
+
+* Dark theme
+* Gradient colors (purple, blue, neon accents)
+* Glassmorphism (blur effects, transparent cards)
+* Smooth animations
+
+UI Elements:
+
+* Rounded cards with shadows
+* Hover effects (scale, glow)
+* Icons (Heroicons or similar)
+* Modern fonts (Inter or Poppins)
+
+Pages:
+
+Landing Page:
+
+* Big hero section
+* Gradient background
+* Call-to-action button
+
+Dashboard:
+
+* Cards showing stats
+* Animated charts
+* Clean layout
+
+Forms:
+
+* Floating labels
+* Smooth focus animations
+* Clear error messages
+
+Progress Page:
+
+* Animated charts (Recharts)
+* Gradient lines
+
+Auth Pages:
+
+* Split screen (image + form)
+* Modern layout
+
+UX:
+
+* Responsive (mobile + desktop)
+* Simple navigation
+* Sidebar or navbar
+* Loading indicators and error handling
+
+---
+
+7. IMPLEMENTATION DETAILS
+
+* Use dotenv for environment variables
+* Use nodemon for development
+* Organize code cleanly
+* Create reusable components
+* Create API service layer
+
+---
+
+8. DEPLOYMENT REQUIREMENTS
+
+* Fully deployable project
+* Use environment variables correctly
+* Connect frontend to deployed backend URL
+* Ensure no CORS issues
+
+---
+
+9. EXTRA FEATURES (REQUIRED IF POSSIBLE)
+
+* Loading spinner
+* Toast notifications (success/error)
+* Empty state UI
+* Basic error pages
+
+---
+
+10. OUTPUT REQUIREMENTS (VERY IMPORTANT)
+
+* Generate FULL working code (frontend + backend)
+* Provide complete folder structure
+* Include README with setup steps
+* Ensure project runs without errors
+* Ensure deployment works correctly
+
+---
+
+FINAL NOTE:
+
+This must NOT look like a basic student project.
+It must look like a modern startup-level fitness app with clean UI, smooth UX, and full functionality.
